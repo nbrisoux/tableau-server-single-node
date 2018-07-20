@@ -204,7 +204,7 @@
       "ssh": {
         "publicKeys": [
           {
-            "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+            "path": "[concat('/home/', parameters('tsm_admin_user'), '/.ssh/authorized_keys')]",
             "keyData": "[parameters('adminPasswordOrKey')]"
           }
         ]
@@ -381,7 +381,7 @@
         },
         "osProfile": {
           "computerName": "[concat('tableauvm', copyIndex(1))]",
-          "adminUsername": "[parameters('adminUsername')]",
+          "adminUsername": "[parameters('tsm_admin_user')]",
           "adminPassword": "[parameters('adminPasswordorKey')]",
           "linuxConfiguration": "[if(equals(parameters('OS'),'Ubuntu'), variables('LinConfiguration'), json('null'))]",
           "windowsConfiguration": "[if(equals(parameters('OS'),'Windows'), variables('WinConfiguration'), json('null'))]"
