@@ -12,7 +12,7 @@
       "value": "Ubuntu"
     },
     "adminPasswordorKey": {
-      "value": "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAp2OXvYVtgjXkHJ7/6Ft9i3tUvslTpE+czrF77TfeyR4O+EotDH09NsXkDVjHcHY8jOuUfwIL/UrHRZcMKHknZWXkyowti4FGGabHYuHyCZa63kQNpoMVB2ZJsb3INN3HtWZJKKNgfdKxLVAEGOMOZh3S+2xGqSmRrmDJFQh7rtImjO7F2kzBga4C1Q39ZeWB1w9uNhcGfDfru397+MhekHudlZvXUwXF1eLVus6s+mbW6fEqQKo5R4Tcefew2iJwWCX3peZ8DqefNhwlgZ3y05OwHmk0YXDlLFRPCYL9gsCe08SlVoGXJ8pysY2zj4koZPst2WVVvuzjdBbb3mwqpw== rsa-key-20180704"
+      "value": "MasterUser1!"
     },
     "tableau_admin_password": {
       "value": "P@ssword12345$"

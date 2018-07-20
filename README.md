@@ -1,4 +1,4 @@
-# Tableau Server on Windows - Single Node   
+# Tableau Server Single Node
 <img src="https://github.com/maddyloo/tableau-server-windows-1node/blob/master/Images/tableau_rgb.png"/>
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2F100-blank-template%2Fazuredeploy.json" target="_blank">
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>

@@ -2,16 +2,16 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "adminUsername": {
+    "tsm_admin_user": {
       "type": "string",
       "metadata": {
-        "description": "Admin username for VM"
+        "description": "Admin username for VM  - also functions as TSM admin user"
       }
     },
-    "adminPasswordorKey": {
+    "tsm_admin_pass": {
       "type": "securestring",
       "metadata": {
-        "description": "Password for the Virtual Machine."
+        "description": "Password for the Virtual Machine - also functions as TSM admin users' password."
       }
     },
     "numberOfInstances": {
@@ -59,7 +59,7 @@
     },
     "ubuntuscripturi": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/JonosGit/CloudUtilities/master/Linux/Ubuntu/ubuntu-update.sh",
+      "defaultValue": "https://raw.githubusercontent.com/maddyloo/Tableau-Server-Single-Node/master/scripts/linux/config-linux.sh?token=AEAjgcOFzKSzI4Dmizv9X5InKOqR6Po1ks5bW1zzwA%3D%3D",
       "metadata": {
         "description": "Uri for custom script."
       }
@@ -73,7 +73,7 @@
     },
     "ubuntuscriptcmd": {
       "type": "string",
-      "defaultValue": "sh ubuntu-update.sh",
+      "defaultValue": "sh ./config-script.sh -u mcorneli -p MasterUser1! -h admin -i admin -j 98107 -k usa -l seattle -m data -n tech -o yes -q pm -r 8888888 -s tableau -t wa -v dev -w jamie -x jdata@tableau.com",
       "metadata": {
         "description": "Uri for custom script."
       }
@@ -200,7 +200,7 @@
       "provisionVmAgent": "true"
     },
     "LinConfiguration": {
-      "disablePasswordAuthentication": true,
+      "disablePasswordAuthentication": false,
       "ssh": {
         "publicKeys": [
           {
@@ -395,7 +395,7 @@
           "copy": [
             {
               "name": "dataDisks",
-              "count": "[parameters('numberOfDataDisks')]",
+              "count": 1,
               "input": {
                 "diskSizeGB": 50,
                 "lun": "[copyIndex('dataDisks')]",
