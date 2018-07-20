@@ -1,0 +1,471 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Admin username for VM"
+      }
+    },
+    "adminPasswordorKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machine."
+      }
+    },
+    "numberOfInstances": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 1,
+      "maxValue": 5,
+      "metadata": {
+        "description": "Number of VMs to deploy,"
+      }
+    },
+    "numberOfDataDisks": {
+      "type": "int",
+      "minValue": 0,
+      "maxValue": 16,
+      "defaultValue": 1,
+      "metadata": {
+        "description": "The number of dataDisks to be returned in the output array."
+      }
+    },
+    "OS": {
+      "type": "string",
+      "defaultValue": "Ubuntu",
+      "allowedValues": [
+        "Ubuntu",
+        "Windows"
+      ],
+      "metadata": {
+        "description": "OS Platform for the VM"
+      }
+    },
+    "publicIpResourceGroupName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Name of the resource group for the public ip address"
+      }
+    },
+    "winscripturi": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/JonosGit/CloudUtilities/master/Windows/IIS.ps1",
+      "metadata": {
+        "description": "Uri for custom script."
+      }
+    },
+    "ubuntuscripturi": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/JonosGit/CloudUtilities/master/Linux/Ubuntu/ubuntu-update.sh",
+      "metadata": {
+        "description": "Uri for custom script."
+      }
+    },
+    "winscriptcmd": {
+      "type": "string",
+      "defaultValue": "powershell -Executionpolicy unrestricted -File IIS.ps1",
+      "metadata": {
+        "description": "custom script."
+      }
+    },
+    "ubuntuscriptcmd": {
+      "type": "string",
+      "defaultValue": "sh ubuntu-update.sh",
+      "metadata": {
+        "description": "Uri for custom script."
+      }
+    },
+    "tableau_admin_username": {
+      "type": "string",
+      "metadata": {
+        "description": "Tableau Server administrator username."
+      }
+    },
+    "tableau_admin_password": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Tableau Server administrator password."
+      }
+    },
+    "registration_first_name": {
+      "type": "string",
+      "metadata": {
+        "description": "First name to use for registering Tableau Server"
+      }
+    },
+    "registration_last_name": {
+      "type": "string",
+      "metadata": {
+        "description": "Last name to use for registering Tableau Server"
+      }
+    },
+    "registration_email": {
+      "type": "string",
+      "metadata": {
+        "description": "Email address to use for registering Tableau Server"
+      }
+    },
+    "registration_company": {
+      "type": "string",
+      "metadata": {
+        "description": "Company name to use for registering Tableau Server"
+      }
+    },
+    "registration_title": {
+      "type": "string",
+      "metadata": {
+        "description": "Job title to use for registering Tableau Server"
+      }
+    },
+    "registration_department": {
+      "type": "string",
+      "metadata": {
+        "description": "Department name to use for registering Tableau Server"
+      }
+    },
+    "registration_industry": {
+      "type": "string",
+      "metadata": {
+        "description": "Industry name to use for registering Tableau Server"
+      }
+    },
+    "registration_phone": {
+      "type": "string",
+      "metadata": {
+        "description": "Phone number to use for registering Tableau Server"
+      }
+    },
+    "registration_city": {
+      "type": "string",
+      "metadata": {
+        "description": "Your current City - to use for registering Tableau Server"
+      }
+    },
+    "registration_state": {
+      "type": "string",
+      "metadata": {
+        "description": "Your current State - to use for registering Tableau Server"
+      }
+    },
+    "registration_zip": {
+      "type": "string",
+      "metadata": {
+        "description": "Your current zip - to use for registering Tableau Server"
+      }
+    },
+    "registration_country": {
+      "type": "string",
+      "metadata": {
+        "description": "Your current Country - to use for registering Tableau Server"
+      }
+    },
+    "license_key": {
+      "type": "string",
+      "defaultValue": "trial",
+      "metadata": {
+        "description": "Enter Tableau Server License key.  ** If you would like to run a 2-week free trial please enter 'trial'"
+      }
+    }
+  },
+  "variables": {
+    "virtualNetworkName": "TABVNET",
+    "NSGName": "TABNSG",
+    "nsgId": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('NSGName'))]",
+    "publicIPAddressType": "Dynamic",
+    "addressPrefix": "10.0.0.0/16",
+    "subnet1Name": "Subnet-1",
+    "subnet1Prefix": "10.0.0.0/24",
+    "subnet1Ref": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('virtualNetworkName'),variables('subnet1Name'))]",
+    "Ubuntu": {
+      "publisher": "Canonical",
+      "offer": "UbuntuServer",
+      "sku": "16.04.0-LTS",
+      "version": "latest"
+    },
+    "Windows": {
+      "publisher": "MicrosoftWindowsServer",
+      "offer": "WindowsServer",
+      "sku": "2016-Datacenter",
+      "version": "latest"
+    },
+    "virtualMachineSize": "Standard_D16s_v3",
+    "imageReference": "[variables(parameters('OS'))]",
+    "publicIpAddressId": {
+      "id": "[resourceId(parameters('publicIpResourceGroupName'), 'Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
+    },
+    "WinConfiguration": {
+      "provisionVmAgent": "true"
+    },
+    "LinConfiguration": {
+      "disablePasswordAuthentication": true,
+      "ssh": {
+        "publicKeys": [
+          {
+            "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+            "keyData": "[parameters('adminPasswordOrKey')]"
+          }
+        ]
+      }
+    },
+    "publicIpName": "[substring(concat(uniqueString(resourceGroup().id, deployment().name)), 0, 6)]",
+    "LinuxsecurityRules": [
+      {
+        "name": "ssh-rule",
+        "properties": {
+          "description": "Allow SSH",
+          "protocol": "Tcp",
+          "sourcePortRange": "*",
+          "destinationPortRange": "22",
+          "sourceAddressPrefix": "Internet",
+          "destinationAddressPrefix": "*",
+          "access": "Allow",
+          "priority": 100,
+          "direction": "Inbound"
+        }
+      },
+      {
+        "name": "web-rule",
+        "properties": {
+          "description": "Allow WEB",
+          "protocol": "Tcp",
+          "sourcePortRange": "*",
+          "destinationPortRange": "80",
+          "sourceAddressPrefix": "Internet",
+          "destinationAddressPrefix": "*",
+          "access": "Allow",
+          "priority": 101,
+          "direction": "Inbound"
+        }
+      }
+    ],
+    "WindowssecurityRules": [
+      {
+        "name": "rdp-rule",
+        "properties": {
+          "description": "Allow RDP",
+          "protocol": "Tcp",
+          "sourcePortRange": "*",
+          "destinationPortRange": "3389",
+          "sourceAddressPrefix": "Internet",
+          "destinationAddressPrefix": "*",
+          "access": "Allow",
+          "priority": 100,
+          "direction": "Inbound"
+        }
+      },
+      {
+        "name": "web-rule",
+        "properties": {
+          "description": "Allow WEB",
+          "protocol": "Tcp",
+          "sourcePortRange": "*",
+          "destinationPortRange": "80",
+          "sourceAddressPrefix": "Internet",
+          "destinationAddressPrefix": "*",
+          "access": "Allow",
+          "priority": 101,
+          "direction": "Inbound"
+        }
+      }
+    ]
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('virtualNetworkName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[variables('NSGName')]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('subnet1Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[variables('nsgId')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('NSGName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "[variables('NSGName')]"
+      },
+      "properties": {
+        "securityRules": 
+          "[if(equals(parameters('OS'),'Windows'), variables('WindowssecurityRules'), variables('LinuxsecurityRules'))]"
+      }
+    },
+
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[concat('tabpip', copyindex(1))]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "PipLoop",
+        "count": "[parameters('numberOfInstances')]"
+      },
+      "dependsOn": [
+        "[variables('virtualNetworkName')]"
+      ],
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(variables('publicIpName'), copyIndex(1))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat('tabnic', copyIndex(1))]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "nicLoop",
+        "count": "[parameters('numberOfInstances')]"
+      },
+      "dependsOn": [
+        "[variables('virtualNetworkName')]",
+        "[concat('tabpip', copyIndex(1))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId ('Microsoft.Network/publicIPAddresses/', concat('tabpip', copyIndex(1)))]"
+              },
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet1Ref')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat('tableau', copyIndex(1))]",
+      "apiVersion": "2016-04-30-preview",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "virtualMachineLoop",
+        "count": "[parameters('numberOfInstances')]"
+      },
+      "dependsOn": [
+        "nicLoop"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('virtualMachineSize')]"
+        },
+        "osProfile": {
+          "computerName": "[concat('tableauvm', copyIndex(1))]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPasswordorKey')]",
+          "linuxConfiguration": "[if(equals(parameters('OS'),'Ubuntu'), variables('LinConfiguration'), json('null'))]",
+          "windowsConfiguration": "[if(equals(parameters('OS'),'Windows'), variables('WinConfiguration'), json('null'))]"
+        },
+        "storageProfile": {
+          "imageReference": "[variables('imageReference')]",
+          "osDisk": {
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "copy": [
+            {
+              "name": "dataDisks",
+              "count": "[parameters('numberOfDataDisks')]",
+              "input": {
+                "diskSizeGB": 50,
+                "lun": "[copyIndex('dataDisks')]",
+                "createOption": "Empty"
+              }
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat('tabnic', copyIndex(1)))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "condition": "[equals(parameters('OS'), 'Ubuntu')]",
+          "name": "linuxappdeploy",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2016-03-30",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', concat('tableau', copyIndex(1)))]"
+          ],
+          "tags": {
+            "displayName": "linuxappdeploy"
+          },
+          "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[parameters('ubuntuscripturi')]"
+              ]
+            },
+            "protectedSettings": {
+              "commandToExecute": "[parameters('ubuntuscriptcmd')]"
+            }
+          }
+        },
+        {
+          "condition": "[equals(parameters('OS'), 'Windows')]",
+          "name": "windowsappdeploy",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2016-03-30",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', concat('tableau', copyIndex(1)))]"
+          ],
+          "tags": {
+            "displayName": "windowsappdeploy"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.8",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[parameters('winscripturi')]"
+              ],
+              "commandToExecute": "[parameters('winscriptcmd')]"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
