@@ -204,8 +204,8 @@
       "ssh": {
         "publicKeys": [
           {
-            "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
-            "keyData": "[parameters('adminPassword')]"
+            "path": "[concat('/home/', parameters('tsm_admin_user'), '/.ssh/authorized_keys')]",
+            "keyData": "[parameters('tsm_admin_pass')]"
           }
         ]
       }
