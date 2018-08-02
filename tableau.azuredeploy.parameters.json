@@ -12,10 +12,10 @@
       "value": "Ubuntu"
     },
     "tsm_admin_pass": {
-      "value": "MasterUser1!"
+      "value": "P@ssword12345$"
     },
     "tableau_admin_password": {
-      "value": "P@ssword12345$"
+      "value": "admin"
     },
     "registration_first_name": {
       "value": "first"
