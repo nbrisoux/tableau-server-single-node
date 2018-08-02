@@ -200,12 +200,12 @@
       "provisionVmAgent": "true"
     },
     "LinConfiguration": {
-      "disablePasswordAuthentication": false,
+      "disablePasswordAuthentication": true,
       "ssh": {
         "publicKeys": [
           {
-            "path": "[concat('/home/', parameters('tsm_admin_user'), '/.ssh/authorized_keys')]",
-            "keyData": "[parameters('tsm_admin_pass')]"
+            "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+            "keyData": "[parameters('adminPassword')]"
           }
         ]
       }
