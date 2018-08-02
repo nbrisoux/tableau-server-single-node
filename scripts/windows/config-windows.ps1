@@ -58,21 +58,10 @@ $registration | ConvertTo-Json -depth 10 | Out-File "C:/tabsetup/registration.js
 
 $config = @{
     configEntities = @{
-        gatewaySettings= @{
-            _type= "gatewaySettingsType"
-            port= "80"
-            firewallOpeningEnabled= "true"
-            sslRedirectEnabled= "true"
-            publicHost= "$host_public_ip"
-            publicPort= "80"
-        }
         identityStore= @{
             _type= "identityStoreType"
             type= "local"
         }
-    }
-    configKeys= @{
-        'gateway.timeout'= "900"
     }
 }
 
