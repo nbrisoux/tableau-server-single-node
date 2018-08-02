@@ -14,7 +14,10 @@ Param(
     [string]$reg_zip,
     [string]$reg_country,
     [string]$license_key,
-    [string]$install_script_url
+    [string]$install_script_url,
+    [string]$local_admin_user,
+    [string]$local_admin_pass,
+    [string]$host_public_ip
 )
 
 ## FILES
@@ -24,8 +27,11 @@ cd C:/
 mkdir tabsetup
 
 $secrets = @{
-    content_admin_user = "$ts_admin_un"
-    content_admin_pass = "$ts_admin_pw"
+    local_admin_user="$local_admin_user"
+    local_admin_pass="$local_admin_pass"
+    content_admin_user="$ts_admin_un"
+    content_admin_pass="$ts_admin_pw"
+    product_keys=@("$license_key")
 }
 
 $secrets | ConvertTo-Json -depth 10 | Out-File "C:/tabsetup/secrets.json" -Encoding ASCII
@@ -48,37 +54,55 @@ $registration = @{
 
 $registration | ConvertTo-Json -depth 10 | Out-File "C:/tabsetup/registration.json" -Encoding ASCII
 
-## 3. Download python installer (refers to Tableau's github page)
+## 3. Create config file
+
+$config = @{
+    configEntities = @{
+        gatewaySettings= @{
+            _type= "gatewaySettingsType"
+            port= "80"
+            firewallOpeningEnabled= "true"
+            sslRedirectEnabled= "true"
+            publicHost= "$host_public_ip"
+            publicPort= "80"
+        }
+        identityStore= @{
+            _type= "identityStoreType"
+            type= "local"
+        }
+    }
+    configKeys= @{
+        'gateway.timeout'= "900"
+    }
+}
+
+$config | ConvertTo-Json -depth 20 | Out-File "C:/tabsetup/myconfig.json"
+
+## 4. Download scripted installer .py (refers to Tableau's github page)
 Invoke-WebRequest -Uri $install_script_url -OutFile "C:/tabsetup/ScriptedInstaller.py"
 
-## 4. Download python .msi
+## 5. Download python .exe
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-Invoke-WebRequest -Uri "https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi" -OutFile "C:/tabsetup/python-2.7.12.msi"
+Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.7.0/python-3.7.0.exe" -OutFile "C:/tabsetup/python-3.7.0.exe"
 
-## 5. Download Tableau Server 2018.1 .exe
-Invoke-WebRequest -Uri "https://downloads.tableau.com/esdalt/2018.1.0/TableauServer-64bit-2018-1-0.exe" -Outfile "C:/tabsetup/tableau-server-installer.exe"
+## 6. Download Tableau Server 2018.2 .exe
+Invoke-WebRequest -Uri "https://downloads.tableau.com/esdalt/2018.2.0/TableauServer-64bit-2018-2-0.exe" -Outfile "C:/tabsetup/tableau-server-installer.exe"
 
 ## COMMANDS
 
 ## 1. Install python (and add to path) - wait for install to finish
-Start-Process "c:/tabsetup/python-2.7.12.msi" -ArgumentList "/quiet /qn" -Wait
-$env:Path = "C:/Python27/"
+Start-Process -FilePath "C:/tabsetup/python-3.7.0.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait
 
-## 2. Install yaml module
-Set-Location -Path C:/Python27/Scripts
-.\pip install pyyaml
-Set-Location -Path C:/Python27/Scripts
+## 2 Make tabinstall.txt
+#New-Item c:/tabsetup/tabinstall.txt -ItemType file
 
-## 2.5 Make tabinstall.txt
-New-Item c:/tabsetup/tabinstall.txt -ItemType file
+## 3. Run installer script
+cd "C:\Program Files (x86)\Python37-32\"
 
-## 3. Run installer script & accomodate for trial key
-cd C:/Python27/
-if ($license_key.ToLower() = "trial") {
-    ./python C:/tabsetup/ScriptedInstaller.py install --installerLog C:/tabsetup/tabinstall.txt --enablePublicFwRule --secretsFile C:/tabsetup/secrets.json --registrationFile C:/tabsetup/registration.json --installDir C:/Tableau/ --trialLicense C:/tabsetup/tableau-server-installer.exe
-} else {
-    ./python C:/tabsetup/ScriptedInstaller.py install --installerLog C:/tabsetup/tabinstall.txt --enablePublicFwRule --secretsFile C:/tabsetup/secrets.json --registrationFile C:/tabsetup/registration.json --installDir C:/Tableau/ --licenseKey $license_key C:/tabsetup/tableau-server-installer.exe
-}
+Start-Process -FilePath "./python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Wait -NoNewWindow
+
+## 4. Open port 8850 for TSM access
+New-NetFirewallRule -DisplayName "TSM Inbound" -Direction Inbound -Action Allow -LocalPort 8850 -Protocol TCP
 
 ## 4. Clean up secrets
 del c:/tabsetup/secrets.json

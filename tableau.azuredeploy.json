@@ -73,7 +73,7 @@
     },
     "ubuntuscriptcmd": {
       "type": "string",
-      "defaultValue": "sh ./config-script.sh -u mcorneli -p MasterUser1! -h admin -i admin -j 98107 -k usa -l seattle -m data -n tech -o yes -q pm -r 8888888 -s tableau -t wa -v dev -w jamie -x jdata@tableau.com",
+      "defaultValue": "sh ./config-linux.sh -u mcorneli -p MasterUser1! -h admin -i admin -j 98107 -k usa -l seattle -m data -n tech -o yes -q pm -r 8888888 -s tableau -t wa -v dev -w jamie -x jdata@tableau.com",
       "metadata": {
         "description": "Uri for custom script."
       }
