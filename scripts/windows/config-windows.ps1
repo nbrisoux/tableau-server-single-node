@@ -16,8 +16,7 @@ Param(
     [string]$license_key,
     [string]$install_script_url,
     [string]$local_admin_user,
-    [string]$local_admin_pass,
-    [string]$host_public_ip
+    [string]$local_admin_pass
 )
 
 ## FILES
@@ -63,9 +62,10 @@ $config = @{
             type= "local"
         }
     }
+    topologyVersion = @{}
 }
 
-$config | ConvertTo-Json -depth 20 | Out-File "C:/tabsetup/myconfig.json"
+$config | ConvertTo-Json -depth 20 | Out-File "C:/tabsetup/myconfig.json" -Encoding ASCII
 
 ## 4. Download scripted installer .py (refers to Tableau's github page)
 Invoke-WebRequest -Uri $install_script_url -OutFile "C:/tabsetup/ScriptedInstaller.py"
