@@ -435,7 +435,7 @@
               ]
             },
             "protectedSettings": {
-              "commandToExecute": "[concat('sh ./config-linux.sh -u ',parameters('tsm_admin_user'),' -p ',parameters('tsm_admin_pass'),' -h ',parameters(tableau_admin_username),' -i ',parameters('tableau_admin_password'),' -j ',parameters('registration_zip'),' -k ',parameters('registration_country'),' -l ',parameters('registration_city'),' -m ',parameters('registration_last_name'),' -n ',parameters('registration_industry'),' -o ',parameters('ts_eula'),' -q ',parameters('registration_title'),' -r ',parameters('registration_phone'),' -s ',parameters('registration_company'),' -t ',parameters('registration_state'),' -v ',parameters('registration_department').' -w ',parameters('registration_first_name'),' -x ',parameters('registration_email'))]"
+              "commandToExecute": "[concat('sh ./config-linux.sh -u ',parameters('tsm_admin_user'),' -p ',parameters('tsm_admin_pass'),' -h ',parameters('tableau_admin_username'),' -i ',parameters('tableau_admin_password'),' -j ',parameters('registration_zip'),' -k ',parameters('registration_country'),' -l ',parameters('registration_city'),' -m ',parameters('registration_last_name'),' -n ',parameters('registration_industry'),' -o ',parameters('ts_eula'),' -q ',parameters('registration_title'),' -r ',parameters('registration_phone'),' -s ',parameters('registration_company'),' -t ',parameters('registration_state'),' -v ',parameters('registration_department').' -w ',parameters('registration_first_name'),' -x ',parameters('registration_email'))]"
             }
           }
         },
