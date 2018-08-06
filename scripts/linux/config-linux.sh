@@ -27,10 +27,8 @@ done
 
 cd /tmp/
 
+# create secrets
 echo -e "tsm_admin_user=\"$USER\"\ntsm_admin_pass=\"$PASSWORD\"\ntableau_server_admin_user=\"$TS_USER\"\ntableau_server_admin_pass=\"$TS_PASS\"" >> secrets
-
-# create secrets 
-# echo -e "tsm_admin_user= $tsm_admin_user\ntsm_admin_pass= $tsm_admin_pass\ntableau_server_admin_user= $ts_user\ntableau_server_admin_pass= $ts_pass" >> secrets
 
 # create registration file
 echo "{
@@ -60,20 +58,19 @@ echo '{
 }' >> config.json
 wait
 # download tableau server .deb file
-wget --output-document=tableau-installer.deb https://downloads.tableau.com/esdalt/2018.1.1/tableau-server-2018-1-1_amd64.deb
+wget --output-document=tableau-installer.deb https://downloads.tableau.com/esdalt/2018.2.0/tableau-server-2018-2-0_amd64.deb
 
 # download automated-installer
 wget --remote-encoding=UTF-8 --output-document=automated-installer.sh https://raw.githubusercontent.com/tableau/server-install-script-samples/master/linux/automated-installer/automated-installer
 
 #cd ..
-#sudo chown tsm_admin_user -R tabserv/
-#cd tabserv
 wait
 chmod +x automated-installer.sh
 
 # ensure everything is finished
 wait
 
+## ADD USER TO THIS
 sudo ./automated-installer.sh -s secrets -f config.json -r registration.json -a mcorneli --accepteula tableau-installer.deb --force
 # so it works from mcorneli...
 
