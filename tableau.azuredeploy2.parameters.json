@@ -9,7 +9,7 @@
       "value": "tabadmin"
     },
     "OS": {
-      "value": "Windows"
+      "value": "Ubuntu"
     },
     "adminPassword": {
       "value": "P@ssword12345$"
@@ -54,7 +54,7 @@
       "value": "United States"
     },
     "source_CIDR": {
-      "value": "10.10.0.0/24"
+      "value": "69.25.143.0/24"
 
     }
   }
