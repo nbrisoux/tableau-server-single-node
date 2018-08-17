@@ -39,13 +39,13 @@ echo "{
  \"last_name\" : \"$LAST_NAME\",
  \"industry\" : \"$INDUSTRY\",
  \"eula\" : \"$EULA\",
- \"title\" : \"TITLE\",
- \"phone\" : \"PHONE\",
- \"company\" : \"COMPANY\",
- \"state\" : \"STATE\",
- \"department\" : \"DEPARMENT\",
- \"first_name\" : \"FIRST_NAME\",
- \"email\" : \"EMAIL\"
+ \"title\" : \"$TITLE\",
+ \"phone\" : \"$PHONE\",
+ \"company\" : \"$COMPANY\",
+ \"state\" : \"$STATE\",
+ \"department\" : \"$DEPARMENT\",
+ \"first_name\" : \"$FIRST_NAME\",
+ \"email\" : \"$EMAIL\"
 }" >> registration.json
 
 # create config file
