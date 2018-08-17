@@ -1,4 +1,5 @@
 #!/bin/bash
+#build this out to accept parameter inputs for registration
 
 while getopts u:p:h:i:j:k:l:m:n:o:q:r:s:t:v:w:x: option
 do
@@ -27,8 +28,8 @@ done
 cd /tmp/
 
 # create secrets
-# took out -e after echo??
-echo -e "tsm_admin_user=\"$USER\"\ntsm_admin_pass=\"$PASSWORD\"\ntableau_server_admin_user=\"$TS_USER\"\ntableau_server_admin_pass=\"$TS_PASS\"" >> secrets
+# took out -e after echo?? ok it def needs the -e
+echo "tsm_admin_user=\"$USER\"\ntsm_admin_pass=\"$PASSWORD\"\ntableau_server_admin_user=\"$TS_USER\"\ntableau_server_admin_pass=\"$TS_PASS\"" >> secrets
 
 # create registration file
 echo "{
