@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+   "parameters": {
+        "adminUsername": {
+            "value": "serveruser"
+        },
+        "adminPassword": {
+            "value": "MasterUser1!"
+        },
+        "tableau_admin_username":{
+            "value": "admin"
+        },
+        "tableau_admin_password":{
+            "value": "admin"
+        },
+        "source_CIDR":{
+            "value": "*"
+        },
+        "registration_first_name":{
+            "value": "Jamie"
+        },
+        "registration_last_name":{
+            "value": "Data"
+        },
+        "registration_email":{
+            "value": "jdata@tableau.com"
+        },
+        "registration_company":{
+            "value":"Tableau"
+        },
+        "registration_title":{
+            "value":"PM"
+        },
+        "registration_department":{
+            "value":"Dev"
+        },
+        "registration_industry":{
+            "value":"Tech"
+        },
+        "registration_phone":{
+            "value":"8888888"
+        },
+        "registration_city":{
+            "value":"Seattle"
+        },
+        "registration_state":{
+            "value":"WA"
+        },
+        "registration_zip":{
+            "value":"98103"
+        },
+        "registration_country":{
+            "value":"Earth"
+        },
+        "license_key":{
+            "value": "trial"
+        }
+    }
+}
