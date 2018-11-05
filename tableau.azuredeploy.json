@@ -2,22 +2,16 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "tsm_admin_user": {
+    "adminUsername": {
       "type": "string",
       "metadata": {
-        "description": "Admin username for VM  - also functions as TSM admin user"
+        "description": "Admin username for VM"
       }
     },
-    "tsm_admin_pass": {
+    "adminPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "Password for the Virtual Machine - also functions as TSM admin users' password."
-      }
-    },
-    "ts_eula": {
-      "type": "string",
-      "metadata": {
-        "description": "Accept EULA? Type yes or no."
+        "description": "Password for the Virtual Machine."
       }
     },
     "numberOfInstances": {
@@ -27,15 +21,6 @@
       "maxValue": 5,
       "metadata": {
         "description": "Number of VMs to deploy,"
-      }
-    },
-    "numberOfDataDisks": {
-      "type": "int",
-      "minValue": 0,
-      "maxValue": 16,
-      "defaultValue": 1,
-      "metadata": {
-        "description": "The number of dataDisks to be returned in the output array."
       }
     },
     "OS": {
@@ -58,30 +43,22 @@
     },
     "winscripturi": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/maddyloo/Tableau-Server-Single-Node/master/scripts/windows/config-windows.ps1?token=AEAjgaquJWipibX8vThHwjrztLCoe9l8ks5bbbsYwA%3D%3D",
+      "defaultValue": "https://raw.githubusercontent.com/maddyloo/Tableau-Server-Single-Node/master/scripts/windows/config-windows.ps1",
       "metadata": {
         "description": "Uri for custom script."
       }
     },
     "ubuntuscripturi": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/maddyloo/Tableau-Server-Single-Node/master/scripts/linux/config-linux.sh?token=AEAjgcOFzKSzI4Dmizv9X5InKOqR6Po1ks5bW1zzwA%3D%3D",
+      "defaultValue": "https://raw.githubusercontent.com/maddyloo/Tableau-Server-Single-Node/master/scripts/linux/config-linux.sh",
       "metadata": {
         "description": "Uri for custom script."
       }
     },
-    "winscriptcmd": {
+    "source_CIDR": {
       "type": "string",
-      "defaultValue": "powershell -Executionpolicy unrestricted -File IIS.ps1",
       "metadata": {
-        "description": "custom script."
-      }
-    },
-    "ubuntuscriptcmd": {
-      "type": "string",
-      "defaultValue": "sh ./config-linux.sh -u mcorneli -p MasterUser1! -h admin -i admin -j 98107 -k usa -l seattle -m data -n tech -o yes -q pm -r 8888888 -s tableau -t wa -v dev -w jamie -x jdata@tableau.com",
-      "metadata": {
-        "description": "Uri for custom script."
+        "description": "CIDR block for RDP source - limit to your IP for secure access."
       }
     },
     "tableau_admin_username": {
@@ -177,7 +154,6 @@
     }
   },
   "variables": {
-    "install_script_url": "https://raw.githubusercontent.com/tableau/server-install-script-samples/master/windows/tsm/SilentInstaller/SilentInstaller.py",
     "virtualNetworkName": "TABVNET",
     "NSGName": "TABNSG",
     "nsgId": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('NSGName'))]",
@@ -207,9 +183,20 @@
       "provisionVmAgent": "true"
     },
     "LinConfiguration": {
-      "disablePasswordAuthentication": false
+      "disablePasswordAuthentication": true,
+      "ssh": {
+        "publicKeys": [
+          {
+            "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+            "keyData": "[parameters('adminPassword')]"
+          }
+        ]
+      }
     },
     "publicIpName": "[substring(concat(uniqueString(resourceGroup().id, deployment().name)), 0, 6)]",
+    "UbuntuExecute": "[concat('-u ', parameters('adminUsername'), '-p ', parameters('adminPassword'), '-h ', parameters('tableau_admin_username'), '-i ', parameters('tableau_admin_password'), '-j ', parameters('registration_zip'), '-k ', parameters('registration_country'), '-l ', parameters('registration_city'), '-m ', parameters('registration_last_name'), '-n ', parameters('registration_industry'), '-o yes', '-q ', parameters('registration_title'),'-r ', parameters('registration_phone'),'-s ', parameters('registration_company'), '-t ', parameters('registration_state'), '-x ', parameters('registration_email'), '-v ', parameters('registration_department'), '-w ', parameters('registration_first_name'))]",
+    "UbCmdWrapper": "[concat('sh ./config-linux.sh ', variables('UbuntuExecute'))]",
+    "WindowsScriptCmd": "powershell -Executionpolicy unrestricted -File config-windows.ps1 -local_admin_user parameters('adminUsername') -local_admin_pass parameters('adminPassword') -ts_admin_un parameters('tableau_admin_username') -ts_admin_pw parameters('tableau_admin_password') -reg_first_name parameters('registration_first_name') -reg_last_name parameters('registration_last_name') -reg_email parameters('registration_email') -reg_company parameters('registration_company') -reg_title parameters('registration_title') -reg_department parameters('registration_department') -reg_industry parameters('registration_industry') -reg_phone parameters('registration_phone') -reg_city parameters('registration_city') -reg_zip parameters('registration_zip') -reg_state parameters('registration_state') -reg_country parameters('registration_country') -license_key parameters('license_key') -install_script_url https://raw.githubusercontent.com/tableau/server-install-script-samples/master/windows/tsm/SilentInstaller/SilentInstaller.py",
     "LinuxsecurityRules": [
       {
         "name": "ssh-rule",
@@ -218,10 +205,24 @@
           "protocol": "Tcp",
           "sourcePortRange": "*",
           "destinationPortRange": "22",
-          "sourceAddressPrefix": "Internet",
+          "sourceAddressPrefix": "[parameters('source_CIDR')]",
           "destinationAddressPrefix": "*",
           "access": "Allow",
           "priority": 100,
+          "direction": "Inbound"
+        }
+      },
+      {
+        "name": "mngagent-rule",
+        "properties": {
+          "description": "Allow Management",
+          "protocol": "Tcp",
+          "sourcePortRange": "*",
+          "destinationPortRange": "8850",
+          "sourceAddressPrefix": "[parameters('source_CIDR')]",
+          "destinationAddressPrefix": "*",
+          "access": "Allow",
+          "priority": 101,
           "direction": "Inbound"
         }
       },
@@ -235,7 +236,7 @@
           "sourceAddressPrefix": "Internet",
           "destinationAddressPrefix": "*",
           "access": "Allow",
-          "priority": 101,
+          "priority": 102,
           "direction": "Inbound"
         }
       }
@@ -248,10 +249,24 @@
           "protocol": "Tcp",
           "sourcePortRange": "*",
           "destinationPortRange": "3389",
-          "sourceAddressPrefix": "Internet",
+          "sourceAddressPrefix": "[parameters('source_CIDR')]",
           "destinationAddressPrefix": "*",
           "access": "Allow",
           "priority": 100,
+          "direction": "Inbound"
+        }
+      },
+      {
+        "name": "mngagent-rule",
+        "properties": {
+          "description": "Allow Management",
+          "protocol": "Tcp",
+          "sourcePortRange": "*",
+          "destinationPortRange": "8850",
+          "sourceAddressPrefix": "[parameters('source_CIDR')]",
+          "destinationAddressPrefix": "*",
+          "access": "Allow",
+          "priority": 101,
           "direction": "Inbound"
         }
       },
@@ -265,7 +280,7 @@
           "sourceAddressPrefix": "Internet",
           "destinationAddressPrefix": "*",
           "access": "Allow",
-          "priority": 101,
+          "priority": 102,
           "direction": "Inbound"
         }
       }
@@ -308,8 +323,7 @@
         "displayName": "[variables('NSGName')]"
       },
       "properties": {
-        "securityRules": 
-          "[if(equals(parameters('OS'),'Windows'), variables('WindowssecurityRules'), variables('LinuxsecurityRules'))]"
+        "securityRules": "[if(equals(parameters('OS'),'Windows'), variables('WindowssecurityRules'), variables('LinuxsecurityRules'))]"
       }
     },
 
@@ -380,9 +394,8 @@
         },
         "osProfile": {
           "computerName": "[concat('tableauvm', copyIndex(1))]",
-          "adminUsername": "[parameters('tsm_admin_user')]",
-          "adminPassword": "[parameters('tsm_admin_pass')]",
-          "linuxConfiguration": "[if(equals(parameters('OS'),'Ubuntu'), variables('LinConfiguration'), json('null'))]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": "[if(equals(parameters('OS'),'Windows'), variables('WinConfiguration'), json('null'))]"
         },
         "storageProfile": {
@@ -396,7 +409,7 @@
               "name": "dataDisks",
               "count": 1,
               "input": {
-                "diskSizeGB": 50,
+                "diskSizeGB": 64,
                 "lun": "[copyIndex('dataDisks')]",
                 "createOption": "Empty"
               }
@@ -430,12 +443,15 @@
             "typeHandlerVersion": "2.0",
             "autoUpgradeMinorVersion": true,
             "settings": {
+              "skipDos2Unix": false,
+              "timestamp": 123456789
+            },
+
+            "protectedSettings": {
+              "commandToExecute": "[variables('UbCmdWrapper')]",
               "fileUris": [
                 "[parameters('ubuntuscripturi')]"
               ]
-            },
-            "protectedSettings": {
-              "commandToExecute": "[concat('sh ./config-linux.sh -u ',parameters('tsm_admin_user'),' -p ',parameters('tsm_admin_pass'),' -h ',parameters('tableau_admin_username'),' -i ',parameters('tableau_admin_password'),' -j ',parameters('registration_zip'),' -k ',parameters('registration_country'),' -l ',parameters('registration_city'),' -m ',parameters('registration_last_name'),' -n ',parameters('registration_industry'),' -o ',parameters('ts_eula'),' -q ',parameters('registration_title'),' -r ',parameters('registration_phone'),' -s ',parameters('registration_company'),' -t ',parameters('registration_state'),' -v ',parameters('registration_department').' -w ',parameters('registration_first_name'),' -x ',parameters('registration_email'))]"
             }
           }
         },
@@ -460,7 +476,7 @@
               "fileUris": [
                 "[parameters('winscripturi')]"
               ],
-              "commandToExecute": "[concat('powershell -ExecutionPolicy Bypass -File config-windows.ps1 -ts_admin_un ',parameters('tableau_admin_username'),' -ts_admin_pw ',parameters('tableau_admin_password'),' -reg_first_name ',parameters('registration_first_name'),' -reg_last_name ', parameters('registration_last_name'),' -reg_email ',parameters('registration_email'),' -reg_company ',parameters('registration_company'),' -reg_title ',parameters('registration_title'),' -reg_department ',parameters('registration_department'),' -reg_industry ',parameters('registration_industry'),' -reg_phone ',parameters('registration_phone'),' -reg_city ',parameters('registration_city'),' -reg_state ',parameters('registration_state'),' -reg_zip ',parameters('registration_zip'),' -reg_country ',parameters('registration_country'),' -license_key ',parameters('license_key'), ' -install_script_url ',variables('install_script_url'))]"
+              "commandToExecute": "[variables('WindowsScriptCmd')]"
             }
           }
         }
