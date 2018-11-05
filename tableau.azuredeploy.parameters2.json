@@ -2,20 +2,23 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
   "parameters": {
-    "adminUsername": {
+    "tsm_admin_user": {
       "value": "locadmin"
     },
     "tableau_admin_username": {
       "value": "tabadmin"
     },
     "OS": {
-      "value": "Ubuntu"
+      "value": "Windows"
     },
-    "adminPassword": {
+    "ts_eula": {
+      "value": "yes"
+    },
+    "tsm_admin_pass": {
       "value": "P@ssword12345$"
     },
     "tableau_admin_password": {
-      "value": "P@ssword12345$"
+      "value": "admin"
     },
     "registration_first_name": {
       "value": "first"
@@ -39,7 +42,7 @@
       "value": "Food"
     },
     "registration_phone": {
-      "value": "4259991000"
+      "value": "425-999-1000"
     },
     "registration_city": {
       "value": "Seattle"
@@ -52,10 +55,6 @@
     },
     "registration_country": {
       "value": "United States"
-    },
-    "source_CIDR": {
-      "value": "10.10.0.0/24"
-
     }
   }
 }
