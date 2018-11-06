@@ -80,7 +80,7 @@ Invoke-WebRequest -Uri "https://downloads.tableau.com/esdalt/2018.2.0/TableauSer
 ## COMMANDS
 
 ## 1. Install python (and add to path) - wait for install to finish
-Start-Process -FilePath "C:/tabsetup/python-3.7.0.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait
+Start-Process -FilePath "C:/tabsetup/python-3.7.0.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait -Verb runas
 
 ## 2 Make tabinstall.txt
 #New-Item c:/tabsetup/tabinstall.txt -ItemType file
@@ -88,7 +88,7 @@ Start-Process -FilePath "C:/tabsetup/python-3.7.0.exe" -ArgumentList "/quiet Ins
 ## 3. Run installer script
 cd "C:\Program Files (x86)\Python37-32\"
 
-Start-Process -FilePath "./python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Wait -NoNewWindow
+Start-Process -FilePath "./python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Wait -NoNewWindow -verb runas
 
 ## 4. Open port 8850 for TSM access & 80 for Tableau Server access
 New-NetFirewallRule -DisplayName "TSM Inbound" -Direction Inbound -Action Allow -LocalPort 8850 -Protocol TCP
