@@ -88,7 +88,7 @@ Start-Process -FilePath "C:/tabsetup/python-3.7.0.exe" -ArgumentList "/quiet Ins
 ## 3. Run installer script
 cd "C:\Program Files (x86)\Python37-32\"
 
-Start-Process -FilePath "./python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Wait -NoNewWindow -verb runas
+Start-Process -FilePath "./python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Wait -NoNewWindow -Verb runas
 
 ## 4. Open port 8850 for TSM access & 80 for Tableau Server access
 New-NetFirewallRule -DisplayName "TSM Inbound" -Direction Inbound -Action Allow -LocalPort 8850 -Protocol TCP
