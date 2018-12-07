@@ -92,8 +92,8 @@ cd "C:\Program Files (x86)\Python37-32\"
 $username = "locadmin"
 $password = "P@ssword12345$"
 
-$securePassword = ConvertTo-SecureString $local_admin_pass -AsPlainText -Force
-$credentials = New-Object System.Management.Automation.PSCredential $local_admin_user, $securePassword
+$securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+$credentials = New-Object System.Management.Automation.PSCredential $username, $securePassword
 ## $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList @($ts_admin_un,(ConvertTo-SecureString -String $ts_admin_pw -AsPlainText -Force))
 
 #Start-Process -FilePath "./python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Credential ($credentials) -Wait -NoNewWindow
