@@ -88,17 +88,16 @@ Start-Process -FilePath "C:/tabsetup/python-3.7.0.exe" -ArgumentList "/quiet Ins
 ## 3. Run installer script
 cd "C:\Program Files (x86)\Python37-32\"
 
-## Custom Script Extension is running as SYSTEM... does not have the permission to launch a process as another user
-$securePassword = ConvertTo-SecureString $local_admin_pass -AsPlainText -Force
-$usernameWithDomain = $env:COMPUTERNAME+"\"+$local_admin_user
-$credentials = New-Object System.Management.Automation.PSCredential($usernameWithDomain, $securePassword)
+#added this
+$username = "locadmin"
+$password = "P@ssword12345$"
 
-Invoke-Command -Credential $credentials -ComputerName $env:COMPUTERNAME -ArgumentList $ErrorLog -ScriptBlock {
-    #################################
-    # Elevated custom scripts go here 
-    #################################
-    Start-Process -FilePath "python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Wait -NoNewWindow
-}
+$securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+$credentials = New-Object System.Management.Automation.PSCredential $username, $securePassword
+## $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList @($ts_admin_un,(ConvertTo-SecureString -String $ts_admin_pw -AsPlainText -Force))
+
+#Start-Process -FilePath "./python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Credential ($credentials) -Wait -NoNewWindow
+Start-Process -FilePath "./python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Credential ($credentials) -Wait -NoNewWindow
 
 ## 4. Open port 8850 for TSM access & 80 for Tableau Server access
 New-NetFirewallRule -DisplayName "TSM Inbound" -Direction Inbound -Action Allow -LocalPort 8850 -Protocol TCP
