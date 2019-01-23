@@ -27,7 +27,7 @@ done
 cd /tmp/
 
 # create secrets
-# took out -e after echo??
+# took out -e after echo
 echo "tsm_admin_user=\"$USER\"\ntsm_admin_pass=\"$PASSWORD\"\ntableau_server_admin_user=\"$TS_USER\"\ntableau_server_admin_pass=\"$TS_PASS\"" >> secrets
 
 # create registration file
@@ -74,10 +74,10 @@ wait
 sudo ./automated-installer.sh -s secrets -f config.json -r registration.json -a "$USER" --accepteula tableau-installer.deb --force
 # so it works from mcorneli...
 
-wait
-# remove all install files
-rm registration.json
-rm secrets
-rm tableau-installer.deb
-rm automated-installer.sh
-rm config.json
+# wait
+## remove all install files
+# rm registration.json
+# rm secrets
+# rm tableau-installer.deb
+# rm automated-installer.sh
+# rm config.json
