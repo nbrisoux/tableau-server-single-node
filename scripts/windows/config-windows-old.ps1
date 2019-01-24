@@ -88,9 +88,9 @@ Start-Process -FilePath "C:/tabsetup/python-3.7.0.exe" -ArgumentList "/quiet Ins
 ## 3. Run installer script
 cd "C:\Program Files (x86)\Python37-32\"
 
-#added this
-$username = "locadmin"
-$password = "P@ssword12345$"
+#added this - MAKE SURE THEY AREN"T STATIC
+$username = $local_admin_user
+$password = $local_admin_pass
 
 $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
 $credentials = New-Object System.Management.Automation.PSCredential $username, $securePassword
