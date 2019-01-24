@@ -74,10 +74,10 @@ wait
 sudo ./automated-installer.sh -s secrets -f config.json -r registration.json -a "$USER" --accepteula tableau-installer.deb --force
 # so it works from mcorneli...
 
-# wait
+wait
 ## remove all install files
-# rm registration.json
-# rm secrets
-# rm tableau-installer.deb
-# rm automated-installer.sh
-# rm config.json
+rm registration.json
+rm secrets
+rm tableau-installer.deb
+rm automated-installer.sh
+rm config.json
