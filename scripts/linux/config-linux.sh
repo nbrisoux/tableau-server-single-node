@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# confirmed: this script works when run manually as root user from root top directory using the following command
+# sh ./config-linux.sh -u <username> -p <password> -h admin -i admin -j 98107 -k usa -l seattle -m data -n tech -o yes -q pm -r 8888888 -s tableau -t wa -v dev -w jamie -x jdata@tableau.com
+# customized to reflect machine admin username and admin password
+
 while getopts u:p:h:i:j:k:l:m:n:o:q:r:s:t:v:w:x: option
 do
  case "${option}"
