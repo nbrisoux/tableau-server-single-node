@@ -430,7 +430,7 @@
           "name": "linuxappdeploy",
           "type": "extensions",
           "location": "[resourceGroup().location]",
-          "apiVersion": "2016-03-30",
+          "apiVersion": "2016-04-30-preview",
           "dependsOn": [
             "[resourceId('Microsoft.Compute/virtualMachines', concat('tableau', copyIndex(1)))]"
           ],
@@ -460,7 +460,7 @@
           "name": "windowsappdeploy",
           "type": "extensions",
           "location": "[resourceGroup().location]",
-          "apiVersion": "2016-03-30",
+          "apiVersion": "2016-04-30-preview",
           "dependsOn": [
             "[resourceId('Microsoft.Compute/virtualMachines', concat('tableau', copyIndex(1)))]"
           ],
