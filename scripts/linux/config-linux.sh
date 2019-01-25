@@ -61,15 +61,24 @@ echo '{
   }
 }' >> config.json
 wait
+
+echo "created all files" >> installer_log.txt
+
 # download tableau server .deb file
 wget --output-document=tableau-installer.deb https://downloads.tableau.com/esdalt/2018.2.0/tableau-server-2018-2-0_amd64.deb
+
+echo "downloaded server" >> installer_log.txt
 
 # download automated-installer
 wget --remote-encoding=UTF-8 --output-document=automated-installer.sh https://raw.githubusercontent.com/tableau/server-install-script-samples/master/linux/automated-installer/automated-installer
 
+echo "downloaded automated-installer" >> installer_log.txt
+
 #cd ..
 wait
 chmod +x automated-installer.sh
+
+echo "modified automated-installer" >> installer_log.txt
 
 # ensure everything is finished
 wait
@@ -78,6 +87,8 @@ wait
 sudo ./automated-installer.sh -s secrets -f config.json -r registration.json -a "$USER" --accepteula tableau-installer.deb --force
 # so it works from mcorneli...
 
+echo "ran automated-installer" >> installer_log.txt
+
 wait
 ## remove all install files
 rm registration.json
@@ -85,3 +96,5 @@ rm secrets
 rm tableau-installer.deb
 rm automated-installer.sh
 rm config.json
+
+echo "removed all files" >> installer_log.txt
