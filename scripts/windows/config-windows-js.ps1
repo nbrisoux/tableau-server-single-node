@@ -38,7 +38,7 @@ $registration = @{
     country = "$($p.reg_country)"
 }
 
-$registration | ConvertTo-Json -depth 10 | Out-File "C:/tabsetup/registration.json" -Encoding utf8
+$registration | ConvertTo-Json -depth 10 | Out-File "C:/tabsetup/registration.json" -Encoding ascii
 
 ## 3. Create config file
 
