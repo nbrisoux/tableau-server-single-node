@@ -1,5 +1,5 @@
 # Tableau Server Single Node
-<img src="https://github.com/maddyloo/tableau-server-single-node/blob/master/images/azure_single_node.png"/>
+<img src="https://github.com/maddyloo/tableau-server-single-node/blob/master/images/tableau_rgb.png"/>
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2F100-blank-template%2Fazuredeploy.json" target="_blank">
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>
 </a>
@@ -17,7 +17,7 @@ Tableau Server on Azure is browser and mobile-based visual analytics anyone can 
 
 Tableau helps tens of thousands of people see and understand their data by making it simple for the everyday data worker to perform ad-hoc visual analytics and data discovery as well as the ability to seamlessly build beautiful dashboards and reports. Tableau is designed to make connecting live to data of all types a simple process that doesn't require any coding or scripting. From cloud sources like Azure SQL Data Warehouse, to on-premise Hadoop clusters, to local spreadsheets, Tableau gives everyone the power to quickly start visually exploring data of any size to find new insights.
 
-<img src="https://github.com/maddyloo/tableau-server-windows-1node/blob/master/Images/azure_single_node.png">
+<img src="https://github.com/maddyloo/tableau-server-single-node/blob/master/images/tableau_rgb.png"/>
 
 The following resources are deployed as part of the solution
 
