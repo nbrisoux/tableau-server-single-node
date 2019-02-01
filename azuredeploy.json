@@ -5,7 +5,7 @@
     "adminUsername": {
       "type": "string",
       "metadata": {
-        "description": "Admin username for VM"
+        "description": "Admin username for Virtual Machine"
       }
     },
     "adminPassword": {
@@ -18,9 +18,9 @@
       "type": "int",
       "defaultValue": 1,
       "minValue": 1,
-      "maxValue": 5,
+      "maxValue": 1,
       "metadata": {
-        "description": "Number of VMs to deploy,"
+        "description": "Number of Virtual Machines to deploy,"
       }
     },
     "OS": {
@@ -288,199 +288,212 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('virtualNetworkName')]",
-      "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[variables('NSGName')]"
-      ],
+      "apiVersion": "2018-02-01",
+      "name": "pid-6c922c23-cc65-4b76-8290-74feb0f3c476",
+      "type": "Microsoft.Resources/deployments",
       "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[variables('addressPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[variables('subnet1Name')]",
-            "properties": {
-              "addressPrefix": "[variables('subnet1Prefix')]",
-              "networkSecurityGroup": {
-                "id": "[variables('nsgId')]"
-              }
-            }
+          "mode": "Incremental",
+          "template": {
+              "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "resources": []
           }
+      }
+  },
+  {
+    "type": "Microsoft.Network/virtualNetworks",
+    "name": "[variables('virtualNetworkName')]",
+    "apiVersion": "2016-03-30",
+    "location": "[resourceGroup().location]",
+    "dependsOn": [
+      "[variables('NSGName')]"
+    ],
+    "properties": {
+      "addressSpace": {
+        "addressPrefixes": [
+          "[variables('addressPrefix')]"
         ]
-      }
-    },
-    {
-      "apiVersion": "2015-06-15",
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[variables('NSGName')]",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "displayName": "[variables('NSGName')]"
       },
-      "properties": {
-        "securityRules": "[if(equals(parameters('OS'),'Windows'), variables('WindowssecurityRules'), variables('LinuxsecurityRules'))]"
-      }
-    },
-
-    {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[concat('tabpip', copyindex(1))]",
-      "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
-      "copy": {
-        "name": "PipLoop",
-        "count": "[parameters('numberOfInstances')]"
-      },
-      "dependsOn": [
-        "[variables('virtualNetworkName')]"
-      ],
-      "properties": {
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
-        "dnsSettings": {
-          "domainNameLabel": "[concat(variables('publicIpName'), copyIndex(1))]"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat('tabnic', copyIndex(1))]",
-      "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
-      "copy": {
-        "name": "nicLoop",
-        "count": "[parameters('numberOfInstances')]"
-      },
-      "dependsOn": [
-        "[variables('virtualNetworkName')]",
-        "[concat('tabpip', copyIndex(1))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "publicIPAddress": {
-                "id": "[resourceId ('Microsoft.Network/publicIPAddresses/', concat('tabpip', copyIndex(1)))]"
-              },
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('subnet1Ref')]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[concat('tableau', copyIndex(1))]",
-      "apiVersion": "2016-04-30-preview",
-      "location": "[resourceGroup().location]",
-      "copy": {
-        "name": "virtualMachineLoop",
-        "count": "[parameters('numberOfInstances')]"
-      },
-      "dependsOn": [
-        "nicLoop"
-      ],
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "[variables('virtualMachineSize')]"
-        },
-        "osProfile": {
-          "computerName": "[concat('tableauvm', copyIndex(1))]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]",
-          "windowsConfiguration": "[if(equals(parameters('OS'),'Windows'), variables('WinConfiguration'), json('null'))]"
-        },
-        "storageProfile": {
-          "imageReference": "[variables('imageReference')]",
-          "osDisk": {
-            "caching": "ReadWrite",
-            "createOption": "FromImage"
-          },
-          "copy": [
-            {
-              "name": "dataDisks",
-              "count": 1,
-              "input": {
-                "diskSizeGB": 64,
-                "lun": "[copyIndex('dataDisks')]",
-                "createOption": "Empty"
-              }
-            }
-          ]
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat('tabnic', copyIndex(1)))]"
-            }
-          ]
-        }
-      },
-      "resources": [
+      "subnets": [
         {
-          "condition": "[equals(parameters('OS'), 'Ubuntu')]",
-          "name": "linuxappdeploy",
-          "type": "extensions",
-          "location": "[resourceGroup().location]",
-          "apiVersion": "2016-03-30",
-          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', concat('tableau', copyIndex(1)))]"
-          ],
-          "tags": {
-            "displayName": "linuxappdeploy"
-          },
+          "name": "[variables('subnet1Name')]",
           "properties": {
-            "publisher": "Microsoft.Azure.Extensions",
-            "type": "CustomScript",
-            "typeHandlerVersion": "2.0",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "skipDos2Unix": false,
-              "timestamp": 123456789
-            },
-
-            "protectedSettings": {
-              "commandToExecute": "[variables('UbCmdWrapper')]",
-              "fileUris": [
-                "[parameters('ubuntuscripturi')]"
-              ]
-            }
-          }
-        },
-        {
-          "condition": "[equals(parameters('OS'), 'Windows')]",
-          "name": "windowsappdeploy",
-          "type": "extensions",
-          "location": "[resourceGroup().location]",
-          "apiVersion": "2016-03-30",
-          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', concat('tableau', copyIndex(1)))]"
-          ],
-          "tags": {
-            "displayName": "windowsappdeploy"
-          },
-          "properties": {
-            "publisher": "Microsoft.Compute",
-            "type": "CustomScriptExtension",
-            "typeHandlerVersion": "1.8",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "fileUris": [
-                "[parameters('winscripturi')]"
-              ],
-              "commandToExecute": "[variables('WindowsScriptCmd')]"
+            "addressPrefix": "[variables('subnet1Prefix')]",
+            "networkSecurityGroup": {
+              "id": "[variables('nsgId')]"
             }
           }
         }
       ]
     }
+  },
+  {
+    "apiVersion": "2015-06-15",
+    "type": "Microsoft.Network/networkSecurityGroups",
+    "name": "[variables('NSGName')]",
+    "location": "[resourceGroup().location]",
+    "tags": {
+      "displayName": "[variables('NSGName')]"
+    },
+    "properties": {
+      "securityRules": "[if(equals(parameters('OS'),'Windows'), variables('WindowssecurityRules'), variables('LinuxsecurityRules'))]"
+    }
+  },
+
+  {
+    "type": "Microsoft.Network/publicIPAddresses",
+    "name": "[concat('tabpip', copyindex(1))]",
+    "apiVersion": "2016-03-30",
+    "location": "[resourceGroup().location]",
+    "copy": {
+      "name": "PipLoop",
+      "count": "[parameters('numberOfInstances')]"
+    },
+    "dependsOn": [
+      "[variables('virtualNetworkName')]"
+    ],
+    "properties": {
+      "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+      "dnsSettings": {
+        "domainNameLabel": "[concat(variables('publicIpName'), copyIndex(1))]"
+      }
+    }
+  },
+  {
+    "type": "Microsoft.Network/networkInterfaces",
+    "name": "[concat('tabnic', copyIndex(1))]",
+    "apiVersion": "2016-03-30",
+    "location": "[resourceGroup().location]",
+    "copy": {
+      "name": "nicLoop",
+      "count": "[parameters('numberOfInstances')]"
+    },
+    "dependsOn": [
+      "[variables('virtualNetworkName')]",
+      "[concat('tabpip', copyIndex(1))]"
+    ],
+    "properties": {
+      "ipConfigurations": [
+        {
+          "name": "ipconfig1",
+          "properties": {
+            "publicIPAddress": {
+              "id": "[resourceId ('Microsoft.Network/publicIPAddresses/', concat('tabpip', copyIndex(1)))]"
+            },
+            "privateIPAllocationMethod": "Dynamic",
+            "subnet": {
+              "id": "[variables('subnet1Ref')]"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "Microsoft.Compute/virtualMachines",
+    "name": "[concat('tableau', copyIndex(1))]",
+    "apiVersion": "2016-04-30-preview",
+    "location": "[resourceGroup().location]",
+    "copy": {
+      "name": "virtualMachineLoop",
+      "count": "[parameters('numberOfInstances')]"
+    },
+    "dependsOn": [
+      "nicLoop"
+    ],
+    "properties": {
+      "hardwareProfile": {
+        "vmSize": "[variables('virtualMachineSize')]"
+      },
+      "osProfile": {
+        "computerName": "[concat('tableauvm', copyIndex(1))]",
+        "adminUsername": "[parameters('adminUsername')]",
+        "adminPassword": "[parameters('adminPassword')]",
+        "windowsConfiguration": "[if(equals(parameters('OS'),'Windows'), variables('WinConfiguration'), json('null'))]"
+      },
+      "storageProfile": {
+        "imageReference": "[variables('imageReference')]",
+        "osDisk": {
+          "caching": "ReadWrite",
+          "createOption": "FromImage"
+        },
+        "copy": [
+          {
+            "name": "dataDisks",
+            "count": 1,
+            "input": {
+              "diskSizeGB": 64,
+              "lun": "[copyIndex('dataDisks')]",
+              "createOption": "Empty"
+            }
+          }
+        ]
+      },
+      "networkProfile": {
+        "networkInterfaces": [
+          {
+            "id": "[resourceId('Microsoft.Network/networkInterfaces',concat('tabnic', copyIndex(1)))]"
+          }
+        ]
+      }
+    },
+    "resources": [
+      {
+        "condition": "[equals(parameters('OS'), 'Ubuntu')]",
+        "name": "linuxappdeploy",
+        "type": "extensions",
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2016-03-30",
+        "dependsOn": [
+          "[resourceId('Microsoft.Compute/virtualMachines', concat('tableau', copyIndex(1)))]"
+        ],
+        "tags": {
+          "displayName": "linuxappdeploy"
+        },
+        "properties": {
+          "publisher": "Microsoft.Azure.Extensions",
+          "type": "CustomScript",
+          "typeHandlerVersion": "2.0",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "skipDos2Unix": false,
+            "timestamp": 123456789
+          },
+
+          "protectedSettings": {
+            "commandToExecute": "[variables('UbCmdWrapper')]",
+            "fileUris": [
+              "[parameters('ubuntuscripturi')]"
+            ]
+          }
+        }
+      },
+      {
+        "condition": "[equals(parameters('OS'), 'Windows')]",
+        "name": "windowsappdeploy",
+        "type": "extensions",
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2016-03-30",
+        "dependsOn": [
+          "[resourceId('Microsoft.Compute/virtualMachines', concat('tableau', copyIndex(1)))]"
+        ],
+        "tags": {
+          "displayName": "windowsappdeploy"
+        },
+        "properties": {
+          "publisher": "Microsoft.Compute",
+          "type": "CustomScriptExtension",
+          "typeHandlerVersion": "1.8",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "fileUris": [
+              "[parameters('winscripturi')]"
+            ],
+            "commandToExecute": "[variables('WindowsScriptCmd')]"
+          }
+        }
+      }
+    ]
+  }
   ]
 }
