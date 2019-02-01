@@ -1,5 +1,5 @@
 # Tableau Server Single Node
-<img src="https://github.com/maddyloo/tableau-server-windows-1node/blob/master/Images/tableau_rgb.png"/>
+<img src="https://github.com/maddyloo/tableau-server-single-node/blob/master/images/azure_single_node.png"/>
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2F100-blank-template%2Fazuredeploy.json" target="_blank">
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>
 </a>
@@ -31,13 +31,13 @@ Business Intelligence Software Provider
 
 #### Microsoft Azure
 
-Public Cloud Platform
+This template deploys the following Azure resources.  For information on the cost of these resources please use the pricing calculator found here: https://azure.microsoft.com/en-us/pricing/calculator/
 
 + **Virtual Network**: New (or existing) virtual network that contains all relevant resources required by the Tableau Server install
 + **Virtual Machine**: Standard_D16-v3 instance
 + **Network Interface**: Allows Azure VM to communicate with the internet
 + **Public IP Address**: Static Public IP that allows users to access Tableau Server
-+ **Network Security Group**: Limits traffic to Azure VM (RDP & port 80 only)
++ **Network Security Group**: Limits traffic to Azure VM (RDP/SSH & port 80/22 only)
 
 ## Prerequisites
 
@@ -51,23 +51,12 @@ To deploy this template using the scripts from the root of this repo:
 
 Powershell:
 ```PowerShell
-.\Deploy-AzureResourceGroup.ps1 -ResourceGroupLocation 'east us' -ArtifactsStagingDirectory 'tableau-server-windows-1node' -UploadArtifacts 
+.\Deploy-AzureResourceGroup.ps1 -ResourceGroupLocation 'west us' -ArtifactsStagingDirectory 'tableau-server-single-node' -UploadArtifacts 
 ```
 Bash:
 ```bash
-azure-group-deploy.sh -a tableau-server-windows-1node -l eastus -u
+azure-group-deploy.sh -a tableau-server-single-node -l westus -u
 ```
-
-This template has artifacts that need to be "staged" for deployment (Configuration script & Server installer scripts) so you have to set the upload switch on the command.
-You can optionally specify a storage account to use, if so the storage account must already exist within the subscription.  If you don't want to specify a storage account
-one will be created by the script (think of this as "temp" storage for AzureRM) and reused by subsequent deployments.
-
-Additionally you can use the config_script.ps1 powershell script to manually kick off a server install from within a VM:
-
-```Powershell
-powershell -ExecutionPolicy Bypass -File config_script.ps1 -ts_admin_un "admin" -ts_admin_pw "admin" -reg_first_name "Jamie" -reg_last_name "Corneli" -reg_email "jdata@tableau.com" -reg_company "Tableau" -reg_title "PM" -reg_department "dev" -reg_industry "tech" -reg_phone "8888888888" -reg_city "Seattle" -reg_zip "98107" -reg_country "USA" -license_key "trial" -install_script_url "https://raw.githubusercontent.com/tableau/server-install-script-samples/master/windows/tabadmin/ScriptedInstaller.py"
-```
-
 
 ## Usage
 
