@@ -1,6 +1,3 @@
-# confirmed: this script works when run manuallly with the following command:
-# .\config-windows.ps1 -local_admin_user "<machine username>" -local_admin_pass "<machine password>" -ts_admin_un "admin" -ts_admin_pw "admin" -reg_first_name "Jamie" -reg_last_name "Corneli" -reg_email "jdata@tableau.com" -reg_company "Tableau" -reg_title "PM" -reg_department "dev" -reg_industry "tech" -reg_phone "8888888888" -reg_city "Seattle" -reg_zip "98107" -reg_state "WA" -reg_country "USA" -license_key "trial" -install_script_url "https://raw.githubusercontent.com/tableau/server-install-script-samples/master/windows/tsm/SilentInstaller/SilentInstaller.py"
-
 Param(
     [string]$ts_admin_un,
     [string]$ts_admin_pw,
@@ -91,16 +88,17 @@ Start-Process -FilePath "C:/tabsetup/python-3.7.0.exe" -ArgumentList "/quiet Ins
 ## 3. Run installer script
 cd "C:\Program Files (x86)\Python37-32\"
 
-#added this
-# $username = $local_admin_user
-# $password = $local_admin_pass
-
+## Custom Script Extension is running as SYSTEM... does not have the permission to launch a process as another user
 $securePassword = ConvertTo-SecureString $local_admin_pass -AsPlainText -Force
-$credentials = New-Object System.Management.Automation.PSCredential $local_admin_user, $securePassword
-## $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList @($ts_admin_un,(ConvertTo-SecureString -String $ts_admin_pw -AsPlainText -Force))
+$usernameWithDomain = $env:COMPUTERNAME+"\"+$local_admin_user
+$credentials = New-Object System.Management.Automation.PSCredential($usernameWithDomain, $securePassword)
 
-#Start-Process -FilePath "./python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Credential ($credentials) -Wait -NoNewWindow
-Start-Process -FilePath "./python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Credential ($credentials) -Wait -NoNewWindow
+Invoke-Command -Credential $credentials -ComputerName $env:COMPUTERNAME -ArgumentList $ErrorLog -ScriptBlock {
+    #################################
+    # Elevated custom scripts go here 
+    #################################
+    Start-Process -FilePath "python.exe" -ArgumentList "C:/tabsetup/ScriptedInstaller.py install --secretsFile C:/tabsetup/secrets.json --configFile C:/tabsetup/myconfig.json --registrationFile C:/tabsetup/registration.json C:/tabsetup/tableau-server-installer.exe --start yes" -Wait -NoNewWindow
+}
 
 ## 4. Open port 8850 for TSM access & 80 for Tableau Server access
 New-NetFirewallRule -DisplayName "TSM Inbound" -Direction Inbound -Action Allow -LocalPort 8850 -Protocol TCP

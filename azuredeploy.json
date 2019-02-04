@@ -43,7 +43,7 @@
     },
     "winscripturi": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/maddyloo/Tableau-Server-Single-Node/master/scripts/windows/config-windows-js.ps1",
+      "defaultValue": "https://raw.githubusercontent.com/maddyloo/Tableau-Server-Single-Node/master/scripts/windows/config-windows.ps1",
       "metadata": {
         "description": "Uri for custom script."
       }
