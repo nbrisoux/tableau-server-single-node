@@ -173,7 +173,7 @@
       "sku": "2016-Datacenter",
       "version": "latest"
     },
-    "virtualMachineSize": "Standard_D16s_v3",
+    "virtualMachineSize": "Standard_D8s_v3",
     "imageReference": "[variables(parameters('OS'))]",
     "publicIpAddressId": {
       "id": "[resourceId(parameters('publicIpResourceGroupName'), 'Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
